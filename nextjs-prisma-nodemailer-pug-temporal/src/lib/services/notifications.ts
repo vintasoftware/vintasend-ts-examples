@@ -26,25 +26,23 @@ export function getNotificationService() {
     number,
     number
   >(prisma);
+  const pugEmailTemplateRenderer = new PugEmailTemplateRenderer<ContextMap>();
+  const nodemailerNotificationAdapter = new NodemailerNotificationAdapter<
+    PugEmailTemplateRenderer<ContextMap>,
+    ContextMap,
+    number,
+    number
+  >(pugEmailTemplateRenderer, true, {
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT || 587,
+    secure: false, // true for port 465, false for other ports
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASSWORD,
+    },
+  } as SMTPTransport.Options)
   return new NotificationService<ContextMap, number, number>(
-    [new NodemailerNotificationAdapter<
-      PugEmailTemplateRenderer<ContextMap>,
-      PrismaNotificationBackend<
-        PrismaClient,
-        ContextMap,
-        number,
-        number
-      >,
-      ContextMap
-    >(new PugEmailTemplateRenderer<ContextMap>(), notificationBackend, true, {
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT || 587,
-      secure: false, // true for port 465, false for other ports
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASSWORD,
-      },
-    } as SMTPTransport.Options)],
+    [nodemailerNotificationAdapter],
     notificationBackend,
     new WinstonLogger(loggerOptions),
   );
