@@ -43,11 +43,11 @@
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
     "ts-node": "^10.9.2",
-    "vintasend": "^0.1.10",
-    "vintasend-nodemailer": "^0.1.10",
-    "vintasend-prisma": "^0.1.10",
-    "vintasend-pug": "^0.1.10",
-    "vintasend-winston": "^0.1.10",
+    "vintasend": "^0.1.12",
+    "vintasend-nodemailer": "^0.1.12",
+    "vintasend-prisma": "^0.1.12",
+    "vintasend-pug": "^0.1.12",
+    "vintasend-winston": "^0.1.12",
     "zod": "^3.24.1"
   },
   "devDependencies": {
