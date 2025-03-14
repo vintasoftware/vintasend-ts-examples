@@ -1,9 +1,9 @@
 import { PrismaClient } from '@prisma/client';
-import { VintaSendFactory } from 'vintasend/dist/index.js';
-import { PrismaNotificationBackendFactory } from 'vintasend-prisma/dist/index.js';
-import { PugEmailTemplateRendererFactory } from 'vintasend-pug/dist/index.js';
-import { NodemailerNotificationAdapterFactory } from 'vintasend-nodemailer/dist/index.js';
-import { WinstonLogger } from 'vintasend-winston/dist/index.js';
+import { VintaSendFactory } from 'vintasend';
+import { PrismaNotificationBackendFactory } from 'vintasend-prisma';
+import { PugEmailTemplateRendererFactory } from 'vintasend-pug';
+import { NodemailerNotificationAdapterFactory } from 'vintasend-nodemailer';
+import { WinstonLogger } from 'vintasend-winston';
 import { ForgotPasswordContextGenerator } from '../../app/api/auth/forgot-password/forgot-password-notification-context';
 import { EmailVerificationNotificationContextGenerator } from '../../app/api/auth/signup/email-verification-notification-context';
 import { FirstDayotificationContextGenerator } from '../../app/api/auth/signup/first-day-notification-context';
