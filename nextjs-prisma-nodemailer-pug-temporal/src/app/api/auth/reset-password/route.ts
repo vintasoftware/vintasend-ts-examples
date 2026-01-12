@@ -1,14 +1,17 @@
 import { PrismaClient } from '@prisma/client';
-import { verifyToken, hashPassword } from '../../../../lib/services/auth';
-import { NextResponse } from 'next/server';
-import { passwordResetSchema, type PasswordResetValues } from '../../../../lib/schemas/auth';
-import type { WriteApiResponse } from '../../../../lib/api-clients/core';
-import * as z from 'zod';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { NextResponse } from 'next/server';
+import * as z from 'zod';
+import type { WriteApiResponse } from '../../../../lib/api-clients/core';
+import { type PasswordResetValues, passwordResetSchema } from '../../../../lib/schemas/auth';
+import { hashPassword, verifyToken } from '../../../../lib/services/auth';
 
 type PasswordResetSuccess = null;
 type PasswordResetValidationError = z.typeToFlattenedError<PasswordResetValues>;
-export type PasswordResetApiResponse = WriteApiResponse<PasswordResetSuccess, PasswordResetValidationError>;
+export type PasswordResetApiResponse = WriteApiResponse<
+  PasswordResetSuccess,
+  PasswordResetValidationError
+>;
 type PasswordResetNextResponse = NextResponse<PasswordResetApiResponse>;
 
 export async function POST(req: Request): Promise<PasswordResetNextResponse> {
@@ -30,7 +33,7 @@ export async function POST(req: Request): Promise<PasswordResetNextResponse> {
     if (!tokenRecord) {
       return NextResponse.json(
         { success: false, error: 'Invalid or expired token' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -48,21 +51,18 @@ export async function POST(req: Request): Promise<PasswordResetNextResponse> {
       const validationError: z.ZodError<PasswordResetValues> = error;
       return NextResponse.json(
         { success: false, error: 'Validation error', details: validationError.flatten() },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (error instanceof PrismaClientKnownRequestError) {
       return NextResponse.json(
         { success: false, error: 'Database error occurred' },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     console.error('Password reset error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
   }
 }

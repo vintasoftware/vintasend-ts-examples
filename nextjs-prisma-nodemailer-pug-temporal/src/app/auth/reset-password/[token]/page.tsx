@@ -1,16 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useParams, useRouter } from 'next/navigation';
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { Alert, AlertDescription, AlertTitle } from '../../../../components/ui/alert';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '../../../../components/ui/form';
-import { Input } from '../../../../components/ui/input';
-import { Button } from '../../../../components/ui/button';
-import { passwordResetSchema, type PasswordResetValues } from '../../../../lib/schemas/auth';
-import { authApi } from '../../../../lib/api-clients/auth';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { AuthLayout } from '../../../../components/AuthLayout';
+import { Alert, AlertDescription, AlertTitle } from '../../../../components/ui/alert';
+import { Button } from '../../../../components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '../../../../components/ui/form';
+import { Input } from '../../../../components/ui/input';
+import { authApi } from '../../../../lib/api-clients/auth';
+import { type PasswordResetValues, passwordResetSchema } from '../../../../lib/schemas/auth';
 
 export default function ResetPassword() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -21,8 +28,8 @@ export default function ResetPassword() {
   const form = useForm<PasswordResetValues>({
     resolver: zodResolver(passwordResetSchema),
     defaultValues: {
-      password: "",
-      confirmPassword: "",
+      password: '',
+      confirmPassword: '',
     },
   });
 
@@ -44,7 +51,9 @@ export default function ResetPassword() {
         }, 3000);
       } else {
         setStatus('error');
-        setMessage(response.error || 'Failed to reset password. The link may be invalid or expired.');
+        setMessage(
+          response.error || 'Failed to reset password. The link may be invalid or expired.',
+        );
       }
     } catch (error) {
       setStatus('error');
@@ -93,9 +102,7 @@ export default function ResetPassword() {
 
       {status !== 'idle' && (
         <Alert variant={status === 'success' ? 'default' : 'destructive'} className="mt-6">
-          <AlertTitle>
-            {status === 'success' ? 'Success' : 'Error'}
-          </AlertTitle>
+          <AlertTitle>{status === 'success' ? 'Success' : 'Error'}</AlertTitle>
           <AlertDescription>{message}</AlertDescription>
         </Alert>
       )}

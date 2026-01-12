@@ -1,20 +1,18 @@
 import { PrismaClient } from '@prisma/client';
-import { hashPassword } from '../../../../lib/services/auth';
-import { signupSchema, type SignupValues } from '../../../../lib/schemas/auth';
-import { NextResponse } from 'next/server';
-import { generateToken } from '../../../../lib/services/auth';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import type { WriteApiResponse } from '../../../../lib/api-clients/core';
+import { NextResponse } from 'next/server';
 import * as z from 'zod';
-import { getNotificationServiceWithQueue } from '../../../../lib/services/notifications-with-queue';
+import type { WriteApiResponse } from '../../../../lib/api-clients/core';
 import { logger } from '../../../../lib/logger';
-
+import { type SignupValues, signupSchema } from '../../../../lib/schemas/auth';
+import { hashPassword } from '../../../../lib/services/auth';
+import { generateToken } from '../../../../lib/services/auth';
+import { getNotificationServiceWithQueue } from '../../../../lib/services/notifications-with-queue';
 
 type SignupSuccess = { message: string };
 type SignupValidationError = z.typeToFlattenedError<SignupValues>;
 export type SignupApiResponse = WriteApiResponse<SignupSuccess, SignupValidationError>;
 type SignupNextResponse = NextResponse<SignupApiResponse>;
-
 
 export async function POST(req: Request): Promise<SignupNextResponse> {
   try {
@@ -23,10 +21,7 @@ export async function POST(req: Request): Promise<SignupNextResponse> {
     const prisma = new PrismaClient();
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      return NextResponse.json(
-        { success: false, error: 'Email already exists' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'Email already exists' }, { status: 400 });
     }
 
     const hashedPassword = await hashPassword(password);
@@ -79,7 +74,10 @@ export async function POST(req: Request): Promise<SignupNextResponse> {
       extraParams: {},
     });
 
-    return NextResponse.json({ success: true, message: 'User created successfully' }, { status: 201 });
+    return NextResponse.json(
+      { success: true, message: 'User created successfully' },
+      { status: 201 },
+    );
   } catch (error) {
     if (error instanceof z.ZodError) {
       const validationError: z.ZodError<SignupValues> = error;
@@ -89,21 +87,18 @@ export async function POST(req: Request): Promise<SignupNextResponse> {
           error: 'Validation error',
           details: validationError.flatten(),
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (error instanceof PrismaClientKnownRequestError) {
       return NextResponse.json(
         { success: false, error: 'Database error occurred' },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     console.error('Signup error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
   }
 }

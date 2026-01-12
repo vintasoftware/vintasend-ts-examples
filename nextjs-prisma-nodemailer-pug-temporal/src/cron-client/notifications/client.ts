@@ -1,8 +1,8 @@
-import { sendAllPendingNotificationsWorkflow } from '../../workers/notifications/workflows';
-import { NOTIFICATIONS_QUEUE } from '../../workers/notifications/constants';
+import { WorkflowExecutionAlreadyStartedError } from '@temporalio/client';
 import { logger } from '../../lib/logger';
 import { getTemporalClient } from '../../lib/temporal';
-import { WorkflowExecutionAlreadyStartedError } from '@temporalio/client';
+import { NOTIFICATIONS_QUEUE } from '../../workers/notifications/constants';
+import { sendAllPendingNotificationsWorkflow } from '../../workers/notifications/workflows';
 
 // Save this to later terminate or cancel this schedule
 const workflowId = 'send-all-pending-notifications-workflow';
@@ -47,5 +47,3 @@ run().catch((err) => {
   logger.error(err);
   process.exit(1);
 });
-
-

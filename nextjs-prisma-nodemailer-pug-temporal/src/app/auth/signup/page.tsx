@@ -1,17 +1,24 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { Button } from '../../../components/ui/button';
-import { Input } from '../../../components/ui/input';
-import { Alert, AlertDescription } from '../../../components/ui/alert';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../../components/ui/form"
-import { signupSchema, type SignupValues } from '../../../lib/schemas/auth';
-import { authApi } from '../../../lib/api-clients/auth';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { AuthLayout } from '../../../components/AuthLayout';
+import { Alert, AlertDescription } from '../../../components/ui/alert';
+import { Button } from '../../../components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '../../../components/ui/form';
+import { Input } from '../../../components/ui/input';
+import { authApi } from '../../../lib/api-clients/auth';
+import { type SignupValues, signupSchema } from '../../../lib/schemas/auth';
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -21,10 +28,10 @@ export default function SignUpPage() {
   const form = useForm<SignupValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      password: "",
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
     },
   });
 
@@ -34,7 +41,7 @@ export default function SignUpPage() {
 
     try {
       const response = await authApi.signup(data);
-      
+
       if (!response.success) {
         throw new Error(response.error || 'Registration failed');
       }
@@ -51,10 +58,10 @@ export default function SignUpPage() {
     <AuthLayout title="Create Account">
       {error && (
         <Alert variant="destructive" className="mb-4">
-          <AlertDescription>{error}</AlertDescription>    
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField

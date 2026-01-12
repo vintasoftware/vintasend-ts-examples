@@ -1,17 +1,24 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { Button } from '../../../components/ui/button';
-import { Input } from '../../../components/ui/input';
-import { Alert, AlertDescription } from '../../../components/ui/alert';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../../components/ui/form"
-import { loginSchema, type LoginValues } from '../../../lib/schemas/auth';
-import { authApi } from '../../../lib/api-clients/auth';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { AuthLayout } from '../../../components/AuthLayout';
+import { Alert, AlertDescription } from '../../../components/ui/alert';
+import { Button } from '../../../components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '../../../components/ui/form';
+import { Input } from '../../../components/ui/input';
+import { authApi } from '../../../lib/api-clients/auth';
+import { type LoginValues, loginSchema } from '../../../lib/schemas/auth';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,8 +28,8 @@ export default function LoginPage() {
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
   });
 
@@ -32,7 +39,7 @@ export default function LoginPage() {
 
     try {
       const response = await authApi.login(data);
-      
+
       if (!response.success) {
         throw new Error(response.error || 'Login failed');
       }
@@ -49,10 +56,10 @@ export default function LoginPage() {
     <AuthLayout title="Login">
       {error && (
         <Alert variant="destructive" className="mb-4">
-          <AlertDescription>{error}</AlertDescription>    
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField

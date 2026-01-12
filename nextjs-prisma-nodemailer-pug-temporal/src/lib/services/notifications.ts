@@ -1,20 +1,22 @@
 import { PrismaClient } from '@prisma/client';
+import type { Notification, User } from '@prisma/client';
+import type SMTPTransport from 'nodemailer/lib/smtp-transport/index.js';
 import { VintaSendFactory } from 'vintasend';
+import { NodemailerNotificationAdapterFactory } from 'vintasend-nodemailer';
 import { PrismaNotificationBackendFactory } from 'vintasend-prisma';
 import { PugEmailTemplateRendererFactory } from 'vintasend-pug';
-import { NodemailerNotificationAdapterFactory } from 'vintasend-nodemailer';
 import { WinstonLogger } from 'vintasend-winston';
 import { ForgotPasswordContextGenerator } from '../../app/api/auth/forgot-password/forgot-password-notification-context';
 import { EmailVerificationNotificationContextGenerator } from '../../app/api/auth/signup/email-verification-notification-context';
 import { FirstDayotificationContextGenerator } from '../../app/api/auth/signup/first-day-notification-context';
+import { WelcomeProspectContextGenerator } from '../context-generators/welcome-prospect-context';
 import { loggerOptions } from '../logger';
-import type { Notification, User } from '@prisma/client';
-import type SMTPTransport from 'nodemailer/lib/smtp-transport/index.js';
 
 export const contextGeneratorsMap = {
   forgotPassword: new ForgotPasswordContextGenerator(),
   emailVerification: new EmailVerificationNotificationContextGenerator(),
   firstDay: new FirstDayotificationContextGenerator(),
+  welcomeProspect: new WelcomeProspectContextGenerator(),
 } as const;
 
 export type NotificationTypeConfig = {

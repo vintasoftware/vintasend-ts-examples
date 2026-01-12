@@ -1,36 +1,243 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VintaSend Next.js Example Project
 
-## Getting Started
+This is a comprehensive [Next.js](https://nextjs.org) example project demonstrating the full capabilities of VintaSend, a powerful notification service for transactional emails, SMS, push notifications, and more.
 
-First, run the development server:
+## Features
 
+This example showcases:
+
+- 📧 **Email Notifications** with Nodemailer
+- 🎨 **Template Rendering** with Pug
+- 🗄️ **Database Backend** with Prisma and PostgreSQL
+- 🔄 **Queue Management** with Temporal
+- 🚀 **One-Off Notifications** for prospects and guests (no user account required)
+- 🔐 **Authentication** with email verification
+- 📊 **Notification Tracking** and status management
+
+## Quick Start
+
+### Prerequisites
+
+- Node.js 18+ 
+- PostgreSQL
+- SMTP server credentials (for sending emails)
+- **VintaSend v0.1.22+** (for one-off notification support)
+
+**Note for Development:** If working in the vintasend-ts monorepo, build the local packages first:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# From the root of vintasend-ts
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Clone and install dependencies:**
+   ```bash
+   npm install
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. **Set up environment variables:**
+   Create a `.env` file with:
+   ```bash
+   DATABASE_URL="postgresql://user:password@localhost:5432/vintasend"
+   SMTP_HOST="smtp.example.com"
+   SMTP_PORT="587"
+   SMTP_USER="your-smtp-user"
+   SMTP_PASSWORD="your-smtp-password"
+   CONTACT_EMAIL="hello@example.com"
+   APP_DOMAIN="http://localhost:3000"
+   JWT_SECRET="your-secret-key"
+   ```
+
+3. **Set up the database:**
+   ```bash
+   npm run db:push
+   ```
+
+4. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+
+5. **Visit the app:**
+   Open [http://localhost:3000](http://localhost:3000)
+
+## Features & Demos
+
+### One-Off Notifications 🚀
+
+Send emails to prospects without requiring user accounts!
+
+**Demo:** [http://localhost:3000/demo/one-off-notifications](http://localhost:3000/demo/one-off-notifications)
+
+**Documentation:** [ONE_OFF_NOTIFICATIONS_README.md](./ONE_OFF_NOTIFICATIONS_README.md)
+
+**Use Cases:**
+- Welcome emails for prospects
+- Marketing campaign emails  
+- Event invitations
+- Newsletter subscriptions
+- Contact form responses
+
+**Quick Example:**
+```typescript
+const notification = await vintaSend.createOneOffNotification({
+  emailOrPhone: 'prospect@example.com',
+  firstName: 'John',
+  lastName: 'Doe',
+  notificationType: 'EMAIL',
+  title: 'Welcome!',
+  bodyTemplate: '/templates/welcome.pug',
+  subjectTemplate: '/templates/welcome-subject.pug',
+  contextName: 'welcomeProspect',
+  contextParameters: { companyName: 'Acme Corp' },
+  sendAfter: null,
+  extraParams: null,
+});
+```
+
+### User Authentication
+
+- Email/password authentication
+- Email verification workflow
+- Password reset functionality
+- JWT-based sessions
+
+### Regular Notifications
+
+Send notifications to registered users:
+- Email verification emails
+- Password reset emails
+- Welcome emails for new users
+- Custom transactional emails
+
+## Project Structure
+
+```
+src/
+├── app/                          # Next.js app router pages
+│   ├── api/                     # API routes
+│   │   ├── auth/               # Authentication endpoints
+│   │   └── notifications/      # Notification endpoints
+│   │       └── one-off/        # One-off notification API
+│   ├── auth/                   # Auth pages (login, signup)
+│   └── demo/                   # Demo pages
+│       └── one-off-notifications/  # One-off demo page
+├── components/                  # React components
+│   ├── OneOffNotificationForm.tsx
+│   └── ui/                     # Shadcn UI components
+├── email-templates/            # Pug email templates
+│   ├── auth/                  # Auth-related templates
+│   └── marketing/             # Marketing templates (one-off)
+├── lib/                       # Utilities and services
+│   ├── context-generators/   # Notification context generators
+│   ├── services/             # Business logic
+│   │   └── notifications.ts  # VintaSend configuration
+│   └── utils.ts
+└── workers/                   # Temporal workers
+```
+
+## Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Lint code with Biome
+- `npm run format` - Format code with Biome
+- `npm run db:push` - Push Prisma schema to database
+- `npm run db:studio` - Open Prisma Studio
+- `npm run notifications-worker` - Start Temporal worker
+- `npm run pending-notifications-client` - Start cron job for pending notifications
+
+## Database Schema
+
+The project uses a **unified single-table approach** for both regular and one-off notifications:
+
+```prisma
+model Notification {
+  id                Int                @id @default(autoincrement())
+  // For regular notifications (optional)
+  userId            Int?
+  user              User?              @relation(fields: [userId], references: [id])
+  // For one-off notifications (used when userId is null)
+  emailOrPhone      String?
+  firstName         String?
+  lastName          String?
+  // Common fields
+  notificationType  NotificationType
+  status            NotificationStatus
+  // ... more fields
+}
+```
+
+This approach provides:
+- ✅ Better performance (single query)
+- ✅ Simpler maintenance
+- ✅ Type safety
+- ✅ Easy to extend
+
+## Tech Stack
+
+- **Framework:** Next.js 15 with App Router
+- **Database:** PostgreSQL with Prisma ORM
+- **Notifications:** VintaSend
+- **Email Adapter:** Nodemailer  
+- **Templates:** Pug
+- **Queue:** Temporal (optional)
+- **UI:** Tailwind CSS + Shadcn UI
+- **Auth:** JWT + bcrypt
+- **Validation:** Zod
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+### VintaSend Documentation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [VintaSend GitHub](https://github.com/vintasoftware/vintasend-ts)
+- [One-Off Notifications Guide](./ONE_OFF_NOTIFICATIONS_README.md)
+- [Implementation Plan](../../ONE_OFF_NOTIFICATIONS_IMPLEMENTATION_PLAN.md)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Next.js Resources
 
-## Deploy on Vercel
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Learn Next.js](https://nextjs.org/learn)
+- [Next.js GitHub](https://github.com/vercel/next.js)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Other Technologies
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Prisma Documentation](https://www.prisma.io/docs)
+- [Temporal Documentation](https://docs.temporal.io/)
+- [Nodemailer Documentation](https://nodemailer.com/)
+- [Pug Template Engine](https://pugjs.org/)
+
+## Deployment
+
+### Deploy on Vercel
+
+1. Push your code to GitHub
+2. Import project in [Vercel](https://vercel.com/new)
+3. Configure environment variables
+4. Deploy!
+
+### Environment Variables for Production
+
+Make sure to set all required environment variables:
+- `DATABASE_URL` - PostgreSQL connection string
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` - Email configuration
+- `JWT_SECRET` - Secret for JWT tokens
+- `APP_DOMAIN` - Your production domain
+- `CONTACT_EMAIL` - Support email address
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Support
+
+For questions or issues:
+- Check the [One-Off Notifications documentation](./ONE_OFF_NOTIFICATIONS_README.md)
+- Open an issue on [GitHub](https://github.com/vintasoftware/vintasend-ts/issues)
+- Review the [implementation plan](../../ONE_OFF_NOTIFICATIONS_IMPLEMENTATION_PLAN.md)
+
+## License
+
+MIT

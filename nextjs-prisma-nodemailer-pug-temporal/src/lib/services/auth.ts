@@ -1,5 +1,5 @@
 import { compare, hash } from 'bcryptjs';
-import { sign, verify, type SignOptions } from 'jsonwebtoken';
+import { type SignOptions, sign, verify } from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 

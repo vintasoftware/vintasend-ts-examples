@@ -1,17 +1,18 @@
 import { PrismaClient } from '@prisma/client';
-import { verifyToken } from '../../../../lib/services/auth';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { NextResponse } from 'next/server';
 import * as z from 'zod';
 import type { WriteApiResponse } from '../../../../lib/api-clients/core';
-import { verifyEmailSchema, type VerifyEmailValues } from '../../../../lib/schemas/auth';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-
+import { type VerifyEmailValues, verifyEmailSchema } from '../../../../lib/schemas/auth';
+import { verifyToken } from '../../../../lib/services/auth';
 
 type VerifyEmailSuccess = null;
 type VerifyEmailValidationError = z.typeToFlattenedError<VerifyEmailValues>;
-export type VerifyEmailApiResponse = WriteApiResponse<VerifyEmailSuccess, VerifyEmailValidationError>;
+export type VerifyEmailApiResponse = WriteApiResponse<
+  VerifyEmailSuccess,
+  VerifyEmailValidationError
+>;
 type VerifyEmailNextResponse = NextResponse<VerifyEmailApiResponse>;
-
 
 export async function POST(req: Request): Promise<VerifyEmailNextResponse> {
   try {
@@ -31,7 +32,7 @@ export async function POST(req: Request): Promise<VerifyEmailNextResponse> {
     if (!tokenRecord) {
       return NextResponse.json(
         { success: false, error: 'Invalid or expired token' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -48,21 +49,18 @@ export async function POST(req: Request): Promise<VerifyEmailNextResponse> {
       const validationError: z.ZodError<VerifyEmailValues> = error;
       return NextResponse.json(
         { success: false, error: 'Validation error', details: validationError.flatten() },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (error instanceof PrismaClientKnownRequestError) {
       return NextResponse.json(
         { success: false, error: 'Database error occurred' },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     console.error('Email verification error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
   }
 }

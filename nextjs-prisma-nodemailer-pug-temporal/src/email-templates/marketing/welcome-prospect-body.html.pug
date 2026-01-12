@@ -1,0 +1,59 @@
+doctype html
+html(lang="en")
+    head
+        meta(charset="UTF-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        title Welcome to #{companyName}
+        style.
+            .button {
+                background-color: #007BFF;
+                color: #ffffff;
+                padding: 10px 20px;
+                text-decoration: none;
+                border-radius: 4px;
+                display: inline-block;
+            }
+            body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                margin: 0;
+                padding: 20px;
+                background-color: #f6f6f6;
+            }
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                background: #ffffff;
+                padding: 20px;
+                border-radius: 4px;
+            }
+            .footer {
+                margin-top: 30px;
+                padding-top: 20px;
+                border-top: 1px solid #e0e0e0;
+                font-size: 12px;
+                color: #666;
+            }
+    body
+        .container
+            h1 Welcome to #{companyName}!
+            p Hello,
+            p
+                | Thank you for your interest in #{productName}. We're excited to have you here!
+            p
+                | #{productName} is a powerful notification service that helps you send transactional emails, SMS, push notifications, and more.
+            h2 Key Features:
+            ul
+                li One-off notifications for prospects and guests
+                li Template-based email rendering
+                li Queue management with Temporal
+                li Multiple notification adapters (Email, SMS, Push)
+                li Comprehensive notification tracking
+            p
+                | If you have any questions, feel free to reach out to us at 
+                a(href=`mailto:${contactEmail}`) #{contactEmail}
+            p
+                | We look forward to serving you!
+            .footer
+                p © #{currentYear} #{companyName}. All rights reserved.
+                p This is an automated message. Please do not reply to this email.

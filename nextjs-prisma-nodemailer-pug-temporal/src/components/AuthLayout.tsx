@@ -1,9 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
-export function AuthLayout({ 
-  children, 
-  title 
-}: { 
+export function AuthLayout({
+  children,
+  title,
+}: {
   children: React.ReactNode;
   title: string;
 }) {
@@ -16,11 +16,9 @@ export function AuthLayout({
               {title}
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            {children}
-          </CardContent>
+          <CardContent>{children}</CardContent>
         </Card>
       </div>
     </div>
-  )
+  );
 }

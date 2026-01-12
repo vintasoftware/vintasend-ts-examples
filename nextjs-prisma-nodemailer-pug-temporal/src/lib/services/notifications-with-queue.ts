@@ -1,7 +1,7 @@
-import { getNotificationService } from "./notifications";
-import { TemporalQueueService } from "./temporal-queue-service";
-import { NOTIFICATIONS_QUEUE } from "../../workers/notifications/constants";
-import { getTemporalClient } from "../temporal";
+import { NOTIFICATIONS_QUEUE } from '../../workers/notifications/constants';
+import { getTemporalClient } from '../temporal';
+import { getNotificationService } from './notifications';
+import { TemporalQueueService } from './temporal-queue-service';
 
 export async function getNotificationServiceWithQueue() {
   const notificationService = getNotificationService();
@@ -9,7 +9,7 @@ export async function getNotificationServiceWithQueue() {
   const temporalClient = await getTemporalClient();
 
   notificationService.registerQueueService(
-    new TemporalQueueService(temporalClient, NOTIFICATIONS_QUEUE)
+    new TemporalQueueService(temporalClient, NOTIFICATIONS_QUEUE),
   );
 
   return notificationService;

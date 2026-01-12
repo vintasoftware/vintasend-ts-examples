@@ -1,9 +1,9 @@
-import type { LoginValues, SignupValues, PasswordResetValues } from '../../lib/schemas/auth';
+import type { ForgotPasswordApiResponse } from '../../app/api/auth/forgot-password/route';
 import type { LoginApiResponse } from '../../app/api/auth/login/route';
+import type { PasswordResetApiResponse } from '../../app/api/auth/reset-password/route';
 import type { SignupApiResponse } from '../../app/api/auth/signup/route';
 import type { VerifyEmailApiResponse } from '../../app/api/auth/verify-email/route';
-import type { PasswordResetApiResponse } from '../../app/api/auth/reset-password/route';
-import type { ForgotPasswordApiResponse } from '../../app/api/auth/forgot-password/route';
+import type { LoginValues, PasswordResetValues, SignupValues } from '../../lib/schemas/auth';
 
 export class AuthApi {
   private baseUrl: string;
