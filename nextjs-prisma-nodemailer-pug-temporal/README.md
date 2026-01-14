@@ -13,6 +13,7 @@ This example showcases:
 - 🚀 **One-Off Notifications** for prospects and guests (no user account required)
 - 🔐 **Authentication** with email verification
 - 📊 **Notification Tracking** and status management
+- 📎 **File Attachments** with S3 (LocalStack for development)
 
 ## Quick Start
 
@@ -148,6 +149,52 @@ src/
 - `npm run db:studio` - Open Prisma Studio
 - `npm run notifications-worker` - Start Temporal worker
 - `npm run pending-notifications-client` - Start cron job for pending notifications
+
+## Running with Docker
+
+This example includes a complete Docker Compose setup with:
+- Next.js app
+- PostgreSQL database
+- Temporal workflow engine
+- Mailpit (email testing)
+- **LocalStack (S3 emulation for attachments)**
+
+### Quick Start with Docker
+
+1. **Start all services:**
+   ```bash
+   docker-compose up -d
+   ```
+
+2. **Setup LocalStack S3 bucket:**
+   ```bash
+   ./scripts/setup-localstack.sh
+   ```
+
+3. **Access the services:**
+   - App: http://localhost:3000
+   - Mailpit UI: http://localhost:8025
+   - Temporal UI: http://localhost:8088
+   - LocalStack S3: http://localhost:4566
+
+4. **View logs:**
+   ```bash
+   docker-compose logs -f app
+   ```
+
+5. **Stop services:**
+   ```bash
+   docker-compose down
+   ```
+
+### LocalStack S3 Benefits
+
+- ✅ No AWS account needed for development
+- ✅ Test attachment features locally
+- ✅ Fast and free
+- ✅ S3-compatible API
+
+See [ATTACHMENTS_GUIDE.md](./ATTACHMENTS_GUIDE.md) for detailed attachment documentation.
 
 ## Database Schema
 

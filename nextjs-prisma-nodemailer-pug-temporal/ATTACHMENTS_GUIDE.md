@@ -45,13 +45,59 @@ npx prisma migrate dev
 
 ### 3. S3 Bucket Setup
 
-Create an S3 bucket with the following configuration:
+#### Option A: LocalStack (Development)
+
+For local development, this example uses **LocalStack** to emulate S3 without needing AWS credentials.
+
+**Setup Steps:**
+
+1. Start the services with Docker Compose:
+   ```bash
+   docker-compose up -d
+   ```
+
+2. Run the LocalStack setup script:
+   ```bash
+   ./scripts/setup-localstack.sh
+   ```
+
+   This script will:
+   - Create the S3 bucket `vintasend-attachments`
+   - Enable versioning
+   - Configure CORS for browser access
+
+3. Verify the bucket was created:
+   ```bash
+   aws --endpoint-url=http://localhost:4566 s3 ls
+   ```
+
+**Environment Variables for LocalStack:**
+
+```bash
+# Already configured in docker-compose.yml
+AWS_ACCESS_KEY_ID=test
+AWS_SECRET_ACCESS_KEY=test
+AWS_REGION=us-east-1
+AWS_ENDPOINT_URL=http://localstack:4566
+S3_BUCKET_NAME=vintasend-attachments
+```
+
+**Benefits:**
+- ✅ No AWS account needed
+- ✅ No internet access required
+- ✅ Fast local development
+- ✅ Free (no AWS costs)
+- ✅ Can test S3 operations locally
+
+#### Option B: AWS S3 (Production)
+
+For production, use a real AWS S3 bucket:
 
 ```bash
 # Using AWS CLI
 aws s3 mb s3://your-bucket-name --region us-east-1
 
-# Set bucket policy for private access
+# Set bucket encryption
 aws s3api put-bucket-encryption \
   --bucket your-bucket-name \
   --server-side-encryption-configuration '{
@@ -80,6 +126,21 @@ aws s3api put-bucket-encryption \
     }
   ]
 }
+```
+
+**Environment Variables for AWS S3:**
+
+```bash
+S3_BUCKET_NAME=your-bucket-name
+AWS_REGION=us-east-1
+# AWS_ENDPOINT_URL is not set (uses real AWS)
+
+# Option 1: Use IAM roles (recommended for EC2/ECS/Lambda)
+# No credentials needed
+
+# Option 2: Use access keys (for local development)
+AWS_ACCESS_KEY_ID=your-access-key
+AWS_SECRET_ACCESS_KEY=your-secret-key
 ```
 
 ## Usage Examples
@@ -405,6 +466,50 @@ Configure S3 to automatically archive or delete old files:
 ```
 
 ## Troubleshooting
+
+### LocalStack Issues
+
+#### Issue: LocalStack not starting
+
+**Solution:** Check Docker logs and ensure ports are not in use:
+
+```bash
+docker-compose logs localstack
+lsof -i :4566  # Check if port is already in use
+```
+
+#### Issue: Bucket creation fails
+
+**Solution:** Manually create the bucket:
+
+```bash
+aws --endpoint-url=http://localhost:4566 s3 mb s3://vintasend-attachments
+```
+
+#### Issue: Files not uploading to LocalStack
+
+**Solution:** 
+1. Ensure LocalStack is running:
+   ```bash
+   docker-compose ps
+   curl http://localhost:4566/_localstack/health
+   ```
+
+2. Check the environment variables are correct:
+   ```bash
+   docker-compose exec app env | grep AWS
+   ```
+
+3. Verify bucket exists:
+   ```bash
+   aws --endpoint-url=http://localhost:4566 s3 ls
+   ```
+
+#### Issue: Cannot access files from LocalStack
+
+**Solution:** Make sure you're using the correct endpoint URL in your S3AttachmentManager configuration.
+
+### General Issues
 
 ### Issue: "Access Denied" errors
 
