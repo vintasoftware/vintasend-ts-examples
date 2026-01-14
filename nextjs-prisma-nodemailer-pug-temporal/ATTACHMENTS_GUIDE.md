@@ -152,7 +152,7 @@ Upload a file as part of the notification:
 ```typescript
 import { vintaSend } from '@/lib/services/vintasend';
 import { createInlineAttachment } from '@/lib/notification-attachments';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 
 const pdfBuffer = fs.readFileSync('./invoice.pdf');
 
