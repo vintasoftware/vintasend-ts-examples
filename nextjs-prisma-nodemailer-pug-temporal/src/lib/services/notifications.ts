@@ -6,6 +6,7 @@ import { NodemailerNotificationAdapterFactory } from 'vintasend-nodemailer';
 import { PrismaNotificationBackendFactory } from 'vintasend-prisma';
 import { PugEmailTemplateRendererFactory } from 'vintasend-pug';
 import { WinstonLogger } from 'vintasend-winston';
+import { createAttachmentManager } from '../notification-attachments';
 import { ForgotPasswordContextGenerator } from '../../app/api/auth/forgot-password/forgot-password-notification-context';
 import { EmailVerificationNotificationContextGenerator } from '../../app/api/auth/signup/email-verification-notification-context';
 import { FirstDayotificationContextGenerator } from '../../app/api/auth/signup/first-day-notification-context';
@@ -25,9 +26,20 @@ export type NotificationTypeConfig = {
   UserIdType: User['id'];
 };
 
+// Create a singleton PrismaClient instance
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
+const prisma = globalForPrisma.prisma || new PrismaClient();
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+
 export function getNotificationService() {
+  // Create the attachment manager (optional, can be undefined if S3 not configured)
+  const attachmentManager = process.env.S3_BUCKET_NAME
+    ? createAttachmentManager()
+    : undefined;
+
   const notificationBackend = new PrismaNotificationBackendFactory<NotificationTypeConfig>().create(
-    new PrismaClient(),
+    prisma,
+    attachmentManager,
   );
   const pugEmailTemplateRenderer =
     new PugEmailTemplateRendererFactory<NotificationTypeConfig>().create({});
@@ -50,5 +62,7 @@ export function getNotificationService() {
     notificationBackend,
     new WinstonLogger(loggerOptions),
     contextGeneratorsMap,
+    undefined,
+    attachmentManager,
   );
 }

@@ -59,34 +59,67 @@ enum TokenType {
 }
 
 model Notification {
-  id                Int                @id @default(autoincrement())
+  id                     Int                        @id @default(autoincrement())
   // For regular notifications (optional now)
-  userId            Int?
-  user              User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                 Int?
+  user                   User?                      @relation(fields: [userId], references: [id], onDelete: Cascade)
   // For one-off notifications (optional - used when userId is null)
-  emailOrPhone      String?
-  firstName         String?
-  lastName          String?
+  emailOrPhone           String?
+  firstName              String?
+  lastName               String?
   // Common fields
-  notificationType  NotificationType
-  title             String?
-  bodyTemplate      String
-  contextName       String
-  contextParameters Json               @default("{}")
-  sendAfter         DateTime?
-  subjectTemplate   String?
-  extraParams       Json?
-  status            NotificationStatus @default(PENDING_SEND)
-  contextUsed       Json?
-  adapterUsed       String?
-  sentAt            DateTime?
-  readAt            DateTime?
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
+  notificationType       NotificationType
+  title                  String?
+  bodyTemplate           String
+  contextName            String
+  contextParameters      Json                       @default("{}")
+  sendAfter              DateTime?
+  subjectTemplate        String?
+  extraParams            Json?
+  status                 NotificationStatus         @default(PENDING_SEND)
+  contextUsed            Json?
+  adapterUsed            String?
+  sentAt                 DateTime?
+  readAt                 DateTime?
+  createdAt              DateTime                   @default(now())
+  updatedAt              DateTime                   @updatedAt
+  // Attachments
+  attachments            NotificationAttachment[]
 
   @@index([status, sendAfter])
   @@index([userId])
   @@index([emailOrPhone])
+}
+
+// Reusable attachment files (stored once, referenced many times)
+model AttachmentFile {
+  id                     String                     @id @default(uuid())
+  filename               String
+  contentType            String
+  size                   Int
+  checksum               String                     @unique
+  storageMetadata        Json
+  createdAt              DateTime                   @default(now())
+  updatedAt              DateTime                   @updatedAt
+  notificationAttachments NotificationAttachment[]
+  
+  @@index([checksum])
+}
+
+// Join table linking notifications to attachment files
+model NotificationAttachment {
+  id             String         @id @default(uuid())
+  notificationId Int
+  notification   Notification   @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  fileId         String
+  attachmentFile AttachmentFile @relation(fields: [fileId], references: [id], onDelete: Restrict)
+  description    String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@unique([notificationId, fileId])
+  @@index([notificationId])
+  @@index([fileId])
 }
 
 enum NotificationType {
