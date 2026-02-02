@@ -1,0 +1,3 @@
+[submodule "vintasend-medplum-example"]
+	path = vintasend-medplum-example
+	url = https://github.com/vintasoftware/vintasend-medplum-example
