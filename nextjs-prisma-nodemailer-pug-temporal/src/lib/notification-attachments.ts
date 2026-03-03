@@ -15,15 +15,17 @@
  */
 
 import { PrismaClient } from '@prisma/client';
-import type { InputJsonValue } from '@prisma/client/runtime/library';
+import type { InputJsonValue } from '@prisma/client/runtime/client';
 import { S3AttachmentManager } from 'vintasend-aws-s3-attachments';
-import type { NotificationAttachment } from 'vintasend/dist/types/attachment';
-import type { AttachmentFileRecord } from 'vintasend/dist/types/attachment';
-import type { FileAttachment } from 'vintasend/dist/types/attachment';
+import type { AttachmentFileRecord, FileAttachment, NotificationAttachment, StorageIdentifiers } from 'vintasend';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 // Create a singleton PrismaClient instance
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
-const prisma = globalForPrisma.prisma || new PrismaClient();
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL!,
+});
+const prisma = globalForPrisma.prisma || new PrismaClient({ adapter });
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 /**
@@ -87,7 +89,7 @@ export async function uploadReusableFile(
       contentType: existingFile.contentType,
       size: existingFile.size,
       checksum: existingFile.checksum,
-      storageMetadata: existingFile.storageMetadata as Record<string, unknown>,
+      storageIdentifiers: existingFile.storageMetadata as StorageIdentifiers,
       createdAt: existingFile.createdAt,
       updatedAt: existingFile.updatedAt,
     };
@@ -108,7 +110,7 @@ export async function uploadReusableFile(
       contentType: uploadResult.contentType,
       size: uploadResult.size,
       checksum: uploadResult.checksum,
-      storageMetadata: uploadResult.storageMetadata as InputJsonValue,
+      storageMetadata: uploadResult.storageIdentifiers as InputJsonValue,
     },
   });
 
@@ -120,7 +122,7 @@ export async function uploadReusableFile(
     contentType: fileRecord.contentType,
     size: fileRecord.size,
     checksum: fileRecord.checksum,
-    storageMetadata: fileRecord.storageMetadata as Record<string, unknown>,
+    storageIdentifiers: fileRecord.storageMetadata as StorageIdentifiers,
     createdAt: fileRecord.createdAt,
     updatedAt: fileRecord.updatedAt,
   };
@@ -183,7 +185,7 @@ export async function getAttachmentFile(
     contentType: file.contentType,
     size: file.size,
     checksum: file.checksum,
-    storageMetadata: file.storageMetadata as Record<string, unknown>,
+    storageIdentifiers: file.storageMetadata as StorageIdentifiers,
     createdAt: file.createdAt,
     updatedAt: file.updatedAt,
   };
@@ -262,7 +264,7 @@ export async function cleanupOrphanedFiles(
     try {
       // Delete from S3
       const attachmentFile = await attachmentManager.reconstructAttachmentFile(
-        file.storageMetadata as Record<string, unknown>,
+        file.storageMetadata as StorageIdentifiers,
       );
       await attachmentFile.delete();
 

@@ -47,11 +47,12 @@ export async function POST(request: NextRequest) {
     console.error('Error creating one-off notification:', error);
 
     if (error instanceof z.ZodError) {
+      const validationError = error as z.ZodError;
       return NextResponse.json(
         {
           success: false,
           error: 'Validation error',
-          details: error.errors,
+          details: validationError.flatten(),
         },
         { status: 400 },
       );

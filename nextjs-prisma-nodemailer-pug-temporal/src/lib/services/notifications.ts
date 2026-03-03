@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import type { Notification, User } from '@prisma/client';
+import type { Notification, Prisma, User } from '@prisma/client';
 import type SMTPTransport from 'nodemailer/lib/smtp-transport/index.js';
 import { VintaSendFactory } from 'vintasend';
 import { NodemailerNotificationAdapterFactory } from 'vintasend-nodemailer';
@@ -12,6 +12,7 @@ import { EmailVerificationNotificationContextGenerator } from '../../app/api/aut
 import { FirstDayotificationContextGenerator } from '../../app/api/auth/signup/first-day-notification-context';
 import { WelcomeProspectContextGenerator } from '../context-generators/welcome-prospect-context';
 import { loggerOptions } from '../logger';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 export const contextGeneratorsMap = {
   forgotPassword: new ForgotPasswordContextGenerator(),
@@ -28,7 +29,10 @@ export type NotificationTypeConfig = {
 
 // Create a singleton PrismaClient instance
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
-const prisma = globalForPrisma.prisma || new PrismaClient();
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL!,
+});
+const prisma = globalForPrisma.prisma || new PrismaClient({ adapter });
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 export function getNotificationService() {
@@ -57,12 +61,11 @@ export function getNotificationService() {
         },
       } as SMTPTransport.Options,
     );
-  return new VintaSendFactory<NotificationTypeConfig>().create(
-    [nodemailerNotificationAdapter],
-    notificationBackend,
-    new WinstonLogger(loggerOptions),
+  return new VintaSendFactory<NotificationTypeConfig>().create({
+    adapters: [nodemailerNotificationAdapter],
+    backend: notificationBackend,
+    logger: new WinstonLogger(loggerOptions),
     contextGeneratorsMap,
-    undefined,
     attachmentManager,
-  );
+  });
 }

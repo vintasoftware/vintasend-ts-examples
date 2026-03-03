@@ -30,6 +30,15 @@ services:
       dockerfile: Dockerfile.notifications-worker
     environment:
       - TEMPORAL_ADDRESS=temporal:7233
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/app_db?schema=public
+      - MAIL_HOST=mailpit
+      - MAIL_PORT=1025
+      - NODE_ENV=development
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_REGION=us-east-1
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - S3_BUCKET_NAME=vintasend-attachments
     depends_on:
       - temporal
       - mailpit
@@ -44,6 +53,15 @@ services:
       dockerfile: Dockerfile.pending-notifications-client
     environment:
       - TEMPORAL_ADDRESS=temporal:7233
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/app_db?schema=public
+      - MAIL_HOST=mailpit
+      - MAIL_PORT=1025
+      - NODE_ENV=development
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_REGION=us-east-1
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - S3_BUCKET_NAME=vintasend-attachments
     depends_on:
       - temporal
       - mailpit

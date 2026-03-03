@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { NextResponse } from 'next/server';
 import * as z from 'zod';
 import type { WriteApiResponse } from '../../../../lib/api-clients/core';
@@ -8,9 +8,10 @@ import { type SignupValues, signupSchema } from '../../../../lib/schemas/auth';
 import { hashPassword } from '../../../../lib/services/auth';
 import { generateToken } from '../../../../lib/services/auth';
 import { getNotificationServiceWithQueue } from '../../../../lib/services/notifications-with-queue';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 type SignupSuccess = { message: string };
-type SignupValidationError = z.typeToFlattenedError<SignupValues>;
+type SignupValidationError = z.ZodFlattenedError<SignupValues>;
 export type SignupApiResponse = WriteApiResponse<SignupSuccess, SignupValidationError>;
 type SignupNextResponse = NextResponse<SignupApiResponse>;
 
@@ -18,7 +19,10 @@ export async function POST(req: Request): Promise<SignupNextResponse> {
   try {
     const body = await req.json();
     const { email, password, firstName, lastName } = signupSchema.parse(body);
-    const prisma = new PrismaClient();
+    const adapter = new PrismaPg({
+      connectionString: process.env.DATABASE_URL!,
+    });
+    const prisma = new PrismaClient({ adapter });
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return NextResponse.json({ success: false, error: 'Email already exists' }, { status: 400 });
@@ -80,7 +84,7 @@ export async function POST(req: Request): Promise<SignupNextResponse> {
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const validationError: z.ZodError<SignupValues> = error;
+      const validationError = error as z.ZodError<SignupValues>;
       return NextResponse.json(
         {
           success: false,

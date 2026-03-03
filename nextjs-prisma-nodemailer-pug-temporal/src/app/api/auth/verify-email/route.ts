@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { NextResponse } from 'next/server';
 import * as z from 'zod';
 import type { WriteApiResponse } from '../../../../lib/api-clients/core';
@@ -7,7 +7,7 @@ import { type VerifyEmailValues, verifyEmailSchema } from '../../../../lib/schem
 import { verifyToken } from '../../../../lib/services/auth';
 
 type VerifyEmailSuccess = null;
-type VerifyEmailValidationError = z.typeToFlattenedError<VerifyEmailValues>;
+type VerifyEmailValidationError = z.ZodFlattenedError<VerifyEmailValues>;
 export type VerifyEmailApiResponse = WriteApiResponse<
   VerifyEmailSuccess,
   VerifyEmailValidationError
@@ -46,7 +46,7 @@ export async function POST(req: Request): Promise<VerifyEmailNextResponse> {
     return NextResponse.json({ success: true, message: 'Email verified successfully' });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const validationError: z.ZodError<VerifyEmailValues> = error;
+      const validationError = error as z.ZodError<VerifyEmailValues>;
       return NextResponse.json(
         { success: false, error: 'Validation error', details: validationError.flatten() },
         { status: 400 },

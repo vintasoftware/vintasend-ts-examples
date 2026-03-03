@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { NextResponse } from 'next/server';
 import * as z from 'zod';
 import type { WriteApiResponse } from '../../../../lib/api-clients/core';
@@ -7,9 +6,11 @@ import type { ForgotPasswordValues } from '../../../../lib/schemas/auth';
 import { forgotPasswordSchema } from '../../../../lib/schemas/auth';
 import { generateToken } from '../../../../lib/services/auth';
 import { getNotificationServiceWithQueue } from '../../../../lib/services/notifications-with-queue';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 type ForgotPasswordSuccess = null;
-type ForgotPasswordValidationError = z.typeToFlattenedError<ForgotPasswordValues>;
+type ForgotPasswordValidationError = z.ZodFlattenedError<ForgotPasswordValues>;
 export type ForgotPasswordApiResponse = WriteApiResponse<
   ForgotPasswordSuccess,
   ForgotPasswordValidationError
@@ -20,7 +21,10 @@ export async function POST(req: Request): Promise<ForgotPasswordNextResponse> {
   try {
     const body = await req.json();
     const { email } = forgotPasswordSchema.parse(body);
-    const prisma = new PrismaClient();
+    const adapter = new PrismaPg({
+      connectionString: process.env.DATABASE_URL!,
+    });
+    const prisma = new PrismaClient({ adapter });
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (user) {
@@ -55,7 +59,7 @@ export async function POST(req: Request): Promise<ForgotPasswordNextResponse> {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const validationError: z.ZodError<ForgotPasswordValues> = error;
+      const validationError = error as z.ZodError<ForgotPasswordValues>;
       return NextResponse.json(
         { success: false, error: 'Validation error', details: validationError.flatten() },
         { status: 400 },

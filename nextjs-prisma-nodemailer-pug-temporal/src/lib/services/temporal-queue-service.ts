@@ -1,5 +1,5 @@
 import type { Client } from '@temporalio/client';
-import type { BaseNotificationQueueService } from 'vintasend/dist/services/notification-queue-service/base-notification-queue-service';
+import type { BaseNotificationQueueService } from 'vintasend';
 import { sendNotificationWorkflow } from '../../workers/notifications/workflows';
 import type { NotificationTypeConfig } from './notifications';
 
@@ -17,6 +17,5 @@ export class TemporalQueueService implements BaseNotificationQueueService<Notifi
       workflowId: `sendNotification-${notificationId}`,
       args: [notificationId],
     });
-    await this.client.connection.close();
   }
 }

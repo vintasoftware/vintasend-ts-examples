@@ -1,13 +1,14 @@
 import { PrismaClient } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { NextResponse } from 'next/server';
 import * as z from 'zod';
 import type { WriteApiResponse } from '../../../../lib/api-clients/core';
 import { type PasswordResetValues, passwordResetSchema } from '../../../../lib/schemas/auth';
 import { hashPassword, verifyToken } from '../../../../lib/services/auth';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 type PasswordResetSuccess = null;
-type PasswordResetValidationError = z.typeToFlattenedError<PasswordResetValues>;
+type PasswordResetValidationError = z.ZodFlattenedError<PasswordResetValues>;
 export type PasswordResetApiResponse = WriteApiResponse<
   PasswordResetSuccess,
   PasswordResetValidationError
@@ -20,7 +21,10 @@ export async function POST(req: Request): Promise<PasswordResetNextResponse> {
     const { token, password } = passwordResetSchema.parse(body);
     const decoded = verifyToken<{ userId: string }>(token);
 
-    const prisma = new PrismaClient();
+    const adapter = new PrismaPg({
+      connectionString: process.env.DATABASE_URL!,
+    });
+    const prisma = new PrismaClient({ adapter });
 
     const tokenRecord = await prisma.token.findFirst({
       where: {
@@ -48,7 +52,7 @@ export async function POST(req: Request): Promise<PasswordResetNextResponse> {
     return NextResponse.json({ success: true, message: 'Password updated successfully' });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const validationError: z.ZodError<PasswordResetValues> = error;
+      const validationError = error as z.ZodError<PasswordResetValues>;
       return NextResponse.json(
         { success: false, error: 'Validation error', details: validationError.flatten() },
         { status: 400 },

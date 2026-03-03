@@ -1,9 +1,13 @@
+import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
-import type { ContextGenerator } from 'vintasend/dist/services/notification-context-registry';
+import type { ContextGenerator } from 'vintasend';
 
 export class FirstDayotificationContextGenerator implements ContextGenerator {
   async generate(params: { userId: number }): Promise<{ firstName: string | null }> {
-    const prisma = new PrismaClient();
+    const adapter = new PrismaPg({
+      connectionString: process.env.DATABASE_URL!,
+    });
+    const prisma = new PrismaClient({ adapter });
 
     const user = await prisma.user.findUnique({
       where: { id: params.userId },

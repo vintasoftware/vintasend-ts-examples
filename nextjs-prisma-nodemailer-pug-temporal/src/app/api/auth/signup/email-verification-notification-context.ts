@@ -1,12 +1,16 @@
+import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
-import type { ContextGenerator } from 'vintasend/dist/services/notification-context-registry';
+import type { ContextGenerator } from 'vintasend';
 
 export class EmailVerificationNotificationContextGenerator implements ContextGenerator {
   async generate(params: { token: string }): Promise<{
     firstName: string | null;
     verificationLink: string;
   }> {
-    const prisma = new PrismaClient();
+    const adapter = new PrismaPg({
+      connectionString: process.env.DATABASE_URL!,
+    });
+    const prisma = new PrismaClient({ adapter });
 
     const APP_DOMAIN = process.env.APP_DOMAIN;
 

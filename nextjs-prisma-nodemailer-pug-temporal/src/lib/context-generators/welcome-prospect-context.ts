@@ -1,4 +1,4 @@
-import type { ContextGenerator } from 'vintasend/dist/services/notification-context-registry';
+import type { ContextGenerator } from 'vintasend';
 
 export class WelcomeProspectContextGenerator implements ContextGenerator {
   async generate(params: {

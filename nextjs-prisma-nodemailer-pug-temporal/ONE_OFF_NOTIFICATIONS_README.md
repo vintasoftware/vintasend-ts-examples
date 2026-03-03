@@ -225,7 +225,7 @@ Context generators provide dynamic data to your templates:
 
 ```typescript
 // lib/context-generators/welcome-prospect-context.ts
-import type { ContextGenerator } from 'vintasend/dist/services/notification-context-registry';
+import type { ContextGenerator } from 'vintasend';
 
 export class WelcomeProspectContextGenerator implements ContextGenerator {
   async generate(params: { 
