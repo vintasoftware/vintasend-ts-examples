@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import type { Notification, Prisma, User } from '@prisma/client';
+import type { Notification, User } from '@prisma/client';
 import type SMTPTransport from 'nodemailer/lib/smtp-transport/index.js';
 import { VintaSendFactory } from 'vintasend';
 import { NodemailerNotificationAdapterFactory } from 'vintasend-nodemailer';
@@ -47,14 +47,15 @@ export function getNotificationService() {
   );
   const pugEmailTemplateRenderer =
     new PugEmailTemplateRendererFactory<NotificationTypeConfig>().create({});
+  const SMPT_PORT = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT, 10) : 1025;
   const nodemailerNotificationAdapter =
     new NodemailerNotificationAdapterFactory<NotificationTypeConfig>().create(
       pugEmailTemplateRenderer,
       true,
       {
         host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT || 587,
-        secure: false, // true for port 465, false for other ports
+        port: SMPT_PORT,
+        secure: SMPT_PORT === 465, // true for port 465, false for other ports
         auth: {
           user: process.env.SMTP_USER,
           pass: process.env.SMTP_PASSWORD,

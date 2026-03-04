@@ -7,8 +7,8 @@ services:
       - "3000:3000"
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/app_db?schema=public
-      - MAIL_HOST=mailpit
-      - MAIL_PORT=1025
+      - SMTP_HOST=mailpit
+      - SMTP_PORT=1025
       - NODE_ENV=development
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
@@ -31,8 +31,8 @@ services:
     environment:
       - TEMPORAL_ADDRESS=temporal:7233
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/app_db?schema=public
-      - MAIL_HOST=mailpit
-      - MAIL_PORT=1025
+      - SMTP_HOST=mailpit
+      - SMTP_PORT=1025
       - NODE_ENV=development
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
@@ -54,8 +54,8 @@ services:
     environment:
       - TEMPORAL_ADDRESS=temporal:7233
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/app_db?schema=public
-      - MAIL_HOST=mailpit
-      - MAIL_PORT=1025
+      - SMTP_HOST=mailpit
+      - SMTP_PORT=1025
       - NODE_ENV=development
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test

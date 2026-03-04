@@ -17,6 +17,7 @@ export async function getNotificationServiceWithQueue() {
     logger.warn('Temporal is unavailable. Continuing without queue service.', {
       error: String(error),
     });
+    throw error;
   }
 
   return notificationService;

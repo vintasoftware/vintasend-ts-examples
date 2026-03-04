@@ -48,6 +48,7 @@ npm run build
    CONTACT_EMAIL="hello@example.com"
    APP_DOMAIN="http://localhost:3000"
    JWT_SECRET="your-secret-key"
+   TEMPORAL_ADDRESS="http://localhost:7233"
    ```
 
 3. **Set up the database:**

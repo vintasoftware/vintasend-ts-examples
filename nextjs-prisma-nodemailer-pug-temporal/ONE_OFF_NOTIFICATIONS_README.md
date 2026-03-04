@@ -114,6 +114,7 @@ The example uses workspace references to the local vintasend packages. If you se
    SMTP_PASSWORD="your-smtp-password"
    CONTACT_EMAIL="hello@example.com"
    APP_DOMAIN="http://localhost:3000"
+   TEMPORAL_ADDRESS="http://localhost:7233"
    ```
 
 3. **Start the development server:**
