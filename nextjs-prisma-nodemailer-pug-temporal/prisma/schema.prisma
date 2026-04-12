@@ -76,6 +76,7 @@ model Notification {
   status                      NotificationStatus        @default(PENDING_SEND)
   contextUsed                 Json?
   extraParams                 Json?
+  tenant                      String?
   adapterUsed                 String?
   gitCommitSha                String?
   sentAt                      DateTime?
@@ -89,6 +90,7 @@ model Notification {
   @@index([userId])
   @@index([emailOrPhone])
   @@index([gitCommitSha])
+  @@index([tenant])
 }
 
 // Reusable attachment files (stored once, referenced many times)
